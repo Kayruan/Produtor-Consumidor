@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+
+build/
+
+docs/documentacao.html
+
+resultados/resultados_rapido.csv
+resultados/resultados_M*.csv
+resultados/grafico_rapido.png
+resultados/grafico_M*.png
