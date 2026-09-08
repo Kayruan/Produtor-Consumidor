@@ -1,7 +1,14 @@
 # Problema Produtor-Consumidor com Semáforos
 
+[![CI Linux](https://github.com/Kayruan/Produtor-Consumidor/actions/workflows/ci.yml/badge.svg)](https://github.com/Kayruan/Produtor-Consumidor/actions/workflows/ci.yml)
+
 Implementação **multithreaded em C** (threads, semáforos e memória compartilhada
 limitada), com a camada de **dados e gráficos em Python**.
+
+O badge acima confirma que o projeto compila e roda em **Linux (Ubuntu)** via
+GitHub Actions: compilação com `-Wall -Wextra -Werror`, casos de alta
+contenção, 10 repetições para descartar deadlock esporádico, e verificação
+de condição de corrida e memória com Helgrind/Memcheck (`.github/workflows/ci.yml`).
 
 > **Documentação técnica:** [`docs/Documentacao.pdf`](docs/Documentacao.pdf) —
 > sincronização, estrutura do projeto, o código em C, metodologia e resultados.
