@@ -1,0 +1,65 @@
+name: CI Linux
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Ambiente
+        run: |
+          uname -a
+          gcc --version
+
+      - name: Compilar (sem -static, como no Linux; -Werror trava no menor aviso)
+        run: |
+          mkdir -p build
+          gcc -O2 -Wall -Wextra -Werror -std=c11 -pedantic \
+              -o build/produtor_consumidor src/produtor_consumidor.c -pthread
+
+      - name: Demonstracao verbose
+        run: timeout 15s ./build/produtor_consumidor 8 2 2 30 --verbose
+
+      - name: Buffer minimo (N=2), alta contencao entre 4 produtores e 4 consumidores
+        run: |
+          out=$(timeout 15s ./build/produtor_consumidor 2 4 4 500)
+          echo "$out"
+          echo "$out" | grep -qE '^RESULT [0-9.]+ [0-9]+ [0-9]+ 500$'
+
+      - name: Muitos consumidores disputando um produtor so
+        run: |
+          out=$(timeout 15s ./build/produtor_consumidor 32 1 16 2000)
+          echo "$out"
+          echo "$out" | grep -qE '^RESULT [0-9.]+ [0-9]+ [0-9]+ 2000$'
+
+      - name: Repetir 10x para descartar deadlock/corrida esporadicos
+        run: |
+          for i in $(seq 1 10); do
+            timeout 15s ./build/produtor_consumidor 4 8 8 1000 > /tmp/saida.txt
+            tail -1 /tmp/saida.txt | grep -qE '^RESULT [0-9.]+ [0-9]+ [0-9]+ 1000$' \
+              || { echo "Falhou na repeticao $i"; cat /tmp/saida.txt; exit 1; }
+          done
+
+      - name: Helgrind - deteccao de condicao de corrida
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y valgrind
+          valgrind --tool=helgrind --error-exitcode=1 \
+            ./build/produtor_consumidor 8 2 2 100
+
+      - name: Memcheck - memoria invalida e vazamentos
+        run: |
+          valgrind --tool=memcheck --error-exitcode=1 --leak-check=full \
+            ./build/produtor_consumidor 8 2 2 200
+
+      - name: Camada Python - experimento e grafico
+        run: |
+          python3 -m pip install --quiet pandas matplotlib
+          python3 analise/experimento.py --rapido
