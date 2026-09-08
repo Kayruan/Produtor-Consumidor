@@ -61,14 +61,18 @@ operacional criar um processo.
 ## Comandos
 
 ```bash
-# compilar
+# compilar (Linux)
+gcc -O2 -Wall -Wextra -o build/produtor_consumidor src/produtor_consumidor.c -pthread
+
+# compilar (Windows, MinGW-w64)
 gcc -O2 -Wall -Wextra -static -o build/produtor_consumidor.exe \
     src/produtor_consumidor.c -pthread
+
 # ou, se tiver o make instalado:  make
 # (o experimento tambem compila sozinho, entao o make e opcional)
 
 # demonstração: imprime cada número consumido e se é primo
-build/produtor_consumidor.exe 8 2 2 20 --verbose
+build/produtor_consumidor 8 2 2 20 --verbose
 
 # estudo de caso completo do enunciado (270 execuções)
 python analise/experimento.py
@@ -82,13 +86,16 @@ python analise/experimento.py --recompilar
 python analise/gerar_pdf.py
 ```
 
-**A flag `-static` é necessária no Windows.** Sem ela o executável depende da
-`libwinpthread-1.dll` e falha silenciosamente fora do terminal do compilador.
+**A flag `-static` só é usada no Windows.** Sem ela o executável dependeria da
+`libwinpthread-1.dll` e falharia silenciosamente fora do terminal do
+compilador. No Linux ela é desnecessária (e pode falhar em sistemas sem a
+libc estática instalada), por isso o Makefile e `analise/experimento.py` só a
+aplicam quando detectam Windows.
 
 ### Argumentos do programa em C
 
 ```
-produtor_consumidor.exe <N> <Np> <Nc> <M> [--verbose]
+produtor_consumidor <N> <Np> <Nc> <M> [--verbose]
 
   N   tamanho da memória compartilhada (vetor)
   Np  número de threads produtoras
@@ -189,6 +196,9 @@ processando um lote de números a cada entrada na região crítica.
 
 ## Requisitos
 
-- **GCC com POSIX threads.** No Windows, MinGW-w64 na variante *posix*.
+- **GCC com POSIX threads.** No Linux já vem com o pacote `gcc`; no Windows,
+  MinGW-w64 na variante *posix*.
 - **Python 3** com `pandas` e `matplotlib` (apenas para o experimento).
-- **Chrome ou Edge** (apenas para regerar o PDF; qualquer Windows já tem).
+- **Chrome, Chromium ou Edge** (apenas para regerar o PDF). No Windows
+  qualquer instalação já tem um dos dois; no Linux instale `chromium` ou
+  `google-chrome` se for regerar a documentação.

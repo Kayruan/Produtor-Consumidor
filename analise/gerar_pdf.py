@@ -500,7 +500,7 @@ sempre igual a N.
 &#9474;  &#9500;&#9472; demo_visual.py         <span class="c">animação opcional (Tkinter)</span>
 &#9474;  &#9492;&#9472; simulador_python.py    <span class="c">núcleo em Python, só para a animação</span>
 &#9500;&#9472; build/
-&#9474;  &#9492;&#9472; produtor_consumidor.exe
+&#9474;  &#9492;&#9472; produtor_consumidor     <span class="c">(.exe no Windows)</span>
 &#9500;&#9472; resultados/
 &#9474;  &#9500;&#9472; resultados.csv
 &#9474;  &#9492;&#9472; grafico_desempenho.png
@@ -630,7 +630,7 @@ custo do sistema operacional criar o processo.
     <tr><td>Repetições por combinação</td><td>10</td></tr>
     <tr><td>Total de execuções</td><td>3 &#215; 9 &#215; 10 = 270</td></tr>
     <tr><td>Faixa dos números sorteados</td><td>1 a 10<sup>7</sup></td></tr>
-    <tr><td>Compilação</td><td><code>gcc -O2 -Wall -Wextra -static -pthread</code></td></tr>
+    <tr><td>Compilação</td><td><code>%%COMPILACAO%%</code></td></tr>
     <tr><td>Máquina</td><td>%%MAQUINA%%</td></tr>
   </tbody>
 </table>
@@ -691,18 +691,23 @@ região crítica).
 
 <h2 class="quebra">8. Como executar</h2>
 <p>
-Requisitos: GCC com POSIX threads (MinGW-w64, variante <em>posix</em>, no
-Windows) e Python 3 com <code>pandas</code> e <code>matplotlib</code>.
+Requisitos: GCC com POSIX threads (pacote <code>gcc</code> no Linux; MinGW-w64
+variante <em>posix</em> no Windows) e Python 3 com <code>pandas</code> e
+<code>matplotlib</code>.
 </p>
 <pre><code><span class="c"># menu com todas as opções</span>
 python executar.py
 
-<span class="c"># compilar manualmente (-static é necessário no Windows)</span>
+<span class="c"># compilar manualmente (Linux)</span>
+gcc -O2 -Wall -Wextra -o build/produtor_consumidor \\
+    src/produtor_consumidor.c -pthread
+
+<span class="c"># compilar manualmente (Windows; -static evita depender de uma DLL)</span>
 gcc -O2 -Wall -Wextra -static -o build/produtor_consumidor.exe \\
     src/produtor_consumidor.c -pthread
 
 <span class="c"># demonstração: imprime cada número e se é primo</span>
-build/produtor_consumidor.exe 8 2 2 20 --verbose
+build/produtor_consumidor 8 2 2 20 --verbose
 
 <span class="c"># estudo de caso completo do enunciado</span>
 python analise/experimento.py
@@ -711,7 +716,7 @@ python analise/experimento.py
 python analise/experimento.py --rapido
 python analise/experimento.py --M 1000000 --repeticoes 3</code></pre>
 
-<pre><code>produtor_consumidor.exe &lt;N&gt; &lt;Np&gt; &lt;Nc&gt; &lt;M&gt; [--verbose]
+<pre><code>produtor_consumidor &lt;N&gt; &lt;Np&gt; &lt;Nc&gt; &lt;M&gt; [--verbose]
 
   N   tamanho da memória compartilhada (vetor)
   Np  número de threads produtoras
@@ -733,6 +738,8 @@ python analise/experimento.py --M 1000000 --repeticoes 3</code></pre>
         "%%DIAGRAMA_FLUXO%%": DIAGRAMA_FLUXO,
         "%%DIAGRAMA_DEADLOCK%%": DIAGRAMA_DEADLOCK,
         "%%MAQUINA%%": maquina,
+        "%%COMPILACAO%%": "gcc -O2 -Wall -Wextra -static -pthread" if os.name == "nt"
+                           else "gcc -O2 -Wall -Wextra -pthread",
         "%%FIGURA%%": figura_grafico,
         "%%TABELA%%": tabela,
         "%%TABELA_ESCALA%%": tabela_escala,
@@ -757,7 +764,7 @@ def localizar_navegador():
     for caminho in NAVEGADORES:
         if os.path.exists(caminho):
             return caminho
-    for nome in ("chrome", "msedge", "chromium", "google-chrome"):
+    for nome in ("google-chrome", "chromium", "chromium-browser", "chrome", "msedge"):
         encontrado = shutil.which(nome)
         if encontrado:
             return encontrado

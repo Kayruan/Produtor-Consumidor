@@ -32,8 +32,9 @@ REPETICOES_PADRAO = 10
 
 
 def compilar(forcar=False):
-    """Compila src/produtor_consumidor.c se estiver desatualizado. -static evita
-    depender de libwinpthread-1.dll no Windows."""
+    """Compila src/produtor_consumidor.c se estiver desatualizado. -static so no
+    Windows (evita depender de libwinpthread-1.dll); no Linux e desnecessario e
+    pode falhar em sistemas sem a libc estatica instalada."""
     garantir_pastas()
 
     atualizado = (
@@ -45,12 +46,14 @@ def compilar(forcar=False):
 
     gcc = shutil.which("gcc")
     if gcc is None:
-        sys.exit("Erro: gcc nao encontrado no PATH. Instale o MinGW-w64 "
+        sys.exit("Erro: gcc nao encontrado no PATH. Instale-o "
+                 "(MinGW-w64 no Windows, pacote gcc no Linux) "
                  "ou compile manualmente:\n"
-                 "  gcc -O2 -Wall -Wextra -static -o build/produtor_consumidor.exe"
-                 " src/produtor_consumidor.c -pthread")
+                 "  gcc -O2 -Wall -Wextra -o build/produtor_consumidor "
+                 "src/produtor_consumidor.c -pthread")
 
-    comando = [gcc, "-O2", "-Wall", "-Wextra", "-static",
+    flags_extra = ["-static"] if os.name == "nt" else []
+    comando = [gcc, "-O2", "-Wall", "-Wextra", *flags_extra,
                "-o", EXECUTAVEL, FONTE_C, "-pthread"]
     print("Compilando:", " ".join(comando))
 

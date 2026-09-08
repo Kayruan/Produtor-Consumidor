@@ -6,18 +6,24 @@
 #   make doc      (re)gera a documentacao em PDF
 #   make clean    remove o executavel compilado
 
-CC      = gcc
-CFLAGS  = -O2 -Wall -Wextra
-LDFLAGS = -static -pthread
+CC     = gcc
+CFLAGS = -O2 -Wall -Wextra
+LIBS   = -pthread
 
-FONTE      = src/produtor_consumidor.c
-EXECUTAVEL = build/produtor_consumidor.exe
+FONTE = src/produtor_consumidor.c
+
+ifeq ($(OS),Windows_NT)
+    EXECUTAVEL = build/produtor_consumidor.exe
+    LIBS      += -static
+else
+    EXECUTAVEL = build/produtor_consumidor
+endif
 
 all: $(EXECUTAVEL)
 
 $(EXECUTAVEL): $(FONTE)
-	@mkdir -p build
-	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+	mkdir -p build
+	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
 
 run: $(EXECUTAVEL)
 	./$(EXECUTAVEL) 8 2 2 20 --verbose
